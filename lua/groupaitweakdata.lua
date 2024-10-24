@@ -747,7 +747,7 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 	local criminals = tweak_data.criminals and tweak_data.criminals.characters
 	local max_characters = criminals and #criminals or #self.besiege.assault.force_balance_mul
 	for i = 1, max_characters do
-		self.besiege.assault.force_pool_balance_mul[i] = 1 + math.floor(i / 4)  -- 1x with 1-4 players, 2x with 5-8, so on
+		self.besiege.assault.force_pool_balance_mul[i] = math.ceil(i / 4)  -- 1x with 1-4 players, 2x with 5-8, so on
 		self.besiege.assault.sustain_duration_balance_mul[i] = self.besiege.assault.force_pool_balance_mul[i]
 		self.besiege.assault.force_balance_mul[i] = (i * 0.2 + 0.2) * (ds and 1.5 or 1)  -- 0.4x with 1 player, + 0.2 for every additional player, all x1.5 on ds
 	end
