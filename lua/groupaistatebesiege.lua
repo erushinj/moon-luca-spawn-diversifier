@@ -19,8 +19,6 @@ Hooks:OverrideFunction(GroupAIStateBase, "_set_rescue_state", function (self, st
 	self._rescue_allowed = state
 end)
 
-
--- Lines 1540-1678
 Hooks:OverrideFunction( GroupAIStateBesiege, "_perform_group_spawning", function(self, spawn_task, force, use_last, ...)
 	local nr_units_spawned = 0
 	local produce_data = {
@@ -29,10 +27,10 @@ Hooks:OverrideFunction( GroupAIStateBesiege, "_perform_group_spawning", function
 	}
 	local unit_categories = tweak_data.group_ai.unit_categories
 	local current_unit_type = tweak_data.levels:get_ai_group_type()
-	local weap_map = tweak_data.character.weap_map
+	local weap_ids = tweak_data.character.weap_ids
+	local weap_unit_names = tweak_data.character.weap_unit_names
 	local spawn_points = spawn_task.spawn_group.spawn_pts
 
-	-- Lines 1552-1632
 	local function _try_spawn_unit(u_type_name, spawn_entry)
 		if GroupAIStateBesiege._MAX_SIMULTANEOUS_SPAWNS <= nr_units_spawned and not force then
 			return
@@ -89,12 +87,12 @@ Hooks:OverrideFunction( GroupAIStateBesiege, "_perform_group_spawning", function
 							weapon_id = weapon_id[unit_type_index % size] or weapon_id[size]
 						end
 
-						local weapon_override = weap_map[weapon_id]
+						local weapon_override = weap_unit_names[table.index_of(weap_ids, weapon_id)]
 						if weapon_override then
 							spawned_unit:inventory():add_unit_by_name(weapon_override, true)
 							spawned_unit:base()._default_weapon_id = weapon_id
 						else
-							log("[Luca's Spawn Diversifier] Invalid weapon ID " .. tostring(weapon_id) .. " in spawn group " .. tostring(spawn_task.spawn_group.id))
+							log("[LSD] Invalid weapon ID " .. tostring(weapon_id) .. " in spawn group " .. tostring(spawn_task.spawn_group.id))
 						end
 					end
 					-- back to u240.3

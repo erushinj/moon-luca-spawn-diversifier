@@ -1,12 +1,7 @@
 Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
-	local difficulty_index = tweak_data:difficulty_to_index(Global.game_settings and Global.game_settings.difficulty or "normal")
-	local n = difficulty_index <= 2
-	local h = difficulty_index == 3
-	local vh = difficulty_index == 4
-	local ovk = difficulty_index == 5
-	local mh = difficulty_index == 6
-	local dw = difficulty_index == 7
-	local ds = difficulty_index >= 8
+	local difficulty = Global.game_settings and Global.game_settings.difficulty or "normal"
+	local dw = difficulty == "overkill_290"
+	local ds = difficulty == "sm_wish"
 
 	self.special_unit_spawn_limits.shield = 8
 	self.special_unit_spawn_limits.medic = 5
@@ -27,13 +22,13 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 	})
 
 	self.unit_categories.ZEAL_spooc = deep_clone(self.unit_categories.spooc)
+	self.unit_categories.ZEAL_spooc.weapon = {
+		america = "smoke",
+		russia = "mp5_tactical",
+		murkywater = "mp5_tactical",
+		federales = "mp5_tactical",
+	}
 	if ds then
-		self.unit_categories.ZEAL_spooc.weapon = {
-			america = "smoke",
-			russia = "mp5_tactical",
-			murkywater = "mp5_tactical",
-			federales = "mp5_tactical",
-		}
 		unit_type_stuff(self.unit_categories.ZEAL_spooc, {
 			america = { Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_cloaker/ene_zeal_cloaker"), },
 			zombie = { Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_cloaker/ene_zeal_cloaker"), },
@@ -278,121 +273,189 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		zombie = ds and { Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat_shield/ene_zeal_swat_shield"), } or nil,
 	})
 
-	self.unit_categories.CITY_swat_M4 = deep_clone(self.unit_categories.FBI_swat_M4)
-	self.unit_categories.CITY_swat_M4.weapon = {
-		america = ds and "m4" or dw and "g36" or "s552",
-		russia = not dw and "ak47_ass" or nil,
+	local city_rifle_america = ds and "m4" or dw and "g36" or "s552"
+	local city_rifle_russia = not dw and "ak47_ass" or nil
+	self.unit_categories.CITY_swat = deep_clone(self.unit_categories.FBI_swat_M4)
+	self.unit_categories.CITY_swat.weapon = {
+		america = { city_rifle_america, "ump", "benelli", "r870", },
+		russia = { city_rifle_russia, "akmsu_smg", "benelli", "r870", },
 	}
-	unit_type_stuff(self.unit_categories.CITY_swat_M4, {
-		america = { Idstring("units/payday2/characters/ene_city_swat_1/ene_city_swat_1"), },
-		russia = { Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_swat_dw_ak47_ass/ene_akan_fbi_swat_dw_ak47_ass"), },
-		zombie = { Idstring("units/payday2/characters/ene_city_swat_1/ene_city_swat_1"), },
-		murkywater = { Idstring("units/pd2_dlc_bph/characters/ene_murkywater_light_city/ene_murkywater_light_city"), },
-		federales = { Idstring("units/pd2_dlc_bex/characters/ene_swat_policia_federale_city/ene_swat_policia_federale_city"), },
-	})
-
-	self.unit_categories.CITY_swat_MP5 = deep_clone(self.unit_categories.CITY_swat_M4)
-	self.unit_categories.CITY_swat_MP5.weapon = {
-		america = "ump",
-		russia = "asval_smg",
-	}
-	unit_type_stuff(self.unit_categories.CITY_swat_MP5, {
-		america = { Idstring("units/payday2/characters/ene_city_swat_3/ene_city_swat_3"), },
-		zombie = { Idstring("units/payday2/characters/ene_city_swat_3/ene_city_swat_3"), },
-	})
-
-	self.unit_categories.CITY_swat_R870 = deep_clone(self.unit_categories.FBI_swat_R870)
-	unit_type_stuff(self.unit_categories.CITY_swat_R870, {
-		america = { Idstring("units/payday2/characters/ene_city_swat_2/ene_city_swat_2"), },
-		russia = { Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_swat_dw_r870/ene_akan_fbi_swat_dw_r870"), },
-		zombie = { Idstring("units/payday2/characters/ene_city_swat_2/ene_city_swat_2"), },
-		murkywater = { Idstring("units/pd2_dlc_bph/characters/ene_murkywater_light_city_r870/ene_murkywater_light_city_r870"), },
-		federales = { Idstring("units/pd2_dlc_bex/characters/ene_swat_policia_federale_city_r870/ene_swat_policia_federale_city_r870"), },
-	})
-	self.unit_categories.CITY_swat_R870.weapon = {
-		america = "benelli",
-		federales = not ds and "r870" or nil,
-	}
-
-	self.unit_categories.CITY_heavy_M4 = deep_clone(self.unit_categories.FBI_heavy_G36)
-	unit_type_stuff(self.unit_categories.CITY_heavy_M4, {
-		america = { Idstring("units/payday2/characters/ene_city_heavy_g36/ene_city_heavy_g36"), },
-		zombie = { Idstring("units/payday2/characters/ene_city_heavy_g36/ene_city_heavy_g36"), },
-	})
-	self.unit_categories.CITY_heavy_M4.weapon = self.unit_categories.CITY_swat_M4.weapon
-
-	self.unit_categories.CITY_heavy_R870 = deep_clone(self.unit_categories.FBI_heavy_R870)
-	unit_type_stuff(self.unit_categories.CITY_heavy_R870, {
+	unit_type_stuff(self.unit_categories.CITY_swat, {
 		america = {
+			Idstring("units/payday2/characters/ene_city_swat_1/ene_city_swat_1"),
+			Idstring("units/payday2/characters/ene_city_swat_3/ene_city_swat_3"),
+			Idstring("units/payday2/characters/ene_city_swat_2/ene_city_swat_2"),
+			Idstring("units/payday2/characters/ene_city_swat_r870/ene_city_swat_r870"),
+		},
+		russia = {
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_swat_dw_ak47_ass/ene_akan_fbi_swat_dw_ak47_ass"),
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_swat_dw_ak47_ass/ene_akan_fbi_swat_dw_ak47_ass"),
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_swat_dw_r870/ene_akan_fbi_swat_dw_r870"),
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_swat_dw_r870/ene_akan_fbi_swat_dw_r870"),
+		},
+		zombie = {
+			Idstring("units/payday2/characters/ene_city_swat_1/ene_city_swat_1"),
+			Idstring("units/payday2/characters/ene_city_swat_3/ene_city_swat_3"),
+			Idstring("units/payday2/characters/ene_city_swat_2/ene_city_swat_2"),
+			Idstring("units/payday2/characters/ene_city_swat_r870/ene_city_swat_r870"),
+		},
+		murkywater = {
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_light_city/ene_murkywater_light_city"),
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_light_city/ene_murkywater_light_city"),
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_light_city_r870/ene_murkywater_light_city_r870"),
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_light_city_r870/ene_murkywater_light_city_r870"),
+		},
+		federales = {
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_policia_federale_city/ene_swat_policia_federale_city"),
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_policia_federale_city/ene_swat_policia_federale_city"),
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_policia_federale_city_r870/ene_swat_policia_federale_city_r870"),
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_policia_federale_city_r870/ene_swat_policia_federale_city_r870"),
+		},
+	})
+
+	self.unit_categories.CITY_heavy = deep_clone(self.unit_categories.FBI_heavy_G36)
+	self.unit_categories.CITY_heavy.weapon = {
+		america = { city_rifle_america, city_rifle_america, "benelli", "r870", },
+		russia = { city_rifle_russia, city_rifle_russia, "benelli", "r870", },
+	}
+	unit_type_stuff(self.unit_categories.CITY_heavy, {
+		america = {
+			Idstring("units/payday2/characters/ene_city_heavy_g36/ene_city_heavy_g36"),
+			Idstring("units/payday2/characters/ene_city_heavy_g36/ene_city_heavy_g36"),
 			Idstring("units/payday2/characters/ene_city_heavy_r870/ene_city_heavy_r870"),
 			Idstring("units/payday2/characters/ene_city_heavy_r870/ene_city_heavy_r870"),
 		},
 		russia = {
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_heavy_g36/ene_akan_fbi_heavy_g36"),
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_heavy_g36/ene_akan_fbi_heavy_g36"),
 			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_heavy_r870/ene_akan_fbi_heavy_r870"),
 			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_heavy_r870/ene_akan_fbi_heavy_r870"),
 		},
 		zombie = {
+			Idstring("units/payday2/characters/ene_city_heavy_g36/ene_city_heavy_g36"),
+			Idstring("units/payday2/characters/ene_city_heavy_g36/ene_city_heavy_g36"),
 			Idstring("units/payday2/characters/ene_city_heavy_r870/ene_city_heavy_r870"),
 			Idstring("units/payday2/characters/ene_city_heavy_r870/ene_city_heavy_r870"),
 		},
 		murkywater = {
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_heavy_g36/ene_murkywater_heavy_g36"),
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_heavy_g36/ene_murkywater_heavy_g36"),
 			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_heavy_shotgun/ene_murkywater_heavy_shotgun"),
 			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_heavy_shotgun/ene_murkywater_heavy_shotgun"),
 		},
 		federales = {
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_heavy_policia_federale_fbi_g36/ene_swat_heavy_policia_federale_fbi_g36"),
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_heavy_policia_federale_fbi_g36/ene_swat_heavy_policia_federale_fbi_g36"),
 			Idstring("units/pd2_dlc_bex/characters/ene_swat_heavy_policia_federale_fbi_r870/ene_swat_heavy_policia_federale_fbi_r870"),
 			Idstring("units/pd2_dlc_bex/characters/ene_swat_heavy_policia_federale_fbi_r870/ene_swat_heavy_policia_federale_fbi_r870"),
 		},
 	})
-	self.unit_categories.CITY_heavy_R870.weapon = self.unit_categories.CITY_swat_R870.weapon
 
-	self.unit_categories.ZEAL_swat_M4 = deep_clone(self.unit_categories.CITY_swat_M4)
-	self.unit_categories.ZEAL_swat_M4.weapon = {
-		america = "m4",
-		russia = "ak47_ass",
+	self.unit_categories.ZEAL_swat = deep_clone(self.unit_categories.CITY_swat)
+	self.unit_categories.ZEAL_swat.weapon = {
+		america = { "m4", "mp5", "r870", },
+		russia = { "ak47_ass", "asval_smg", "r870", },
+		murkywater = { "m4", "ump", "r870", },
+		federales = { "m4", "ump", "r870", },
 	}
-	self.unit_categories.ZEAL_swat_R870 = deep_clone(self.unit_categories.CITY_swat_R870)
-	self.unit_categories.ZEAL_swat_R870.weapon = {
-		america = "r870",
-	}
-	self.unit_categories.ZEAL_swat_MP5 = deep_clone(self.unit_categories.CITY_swat_MP5)
-	self.unit_categories.ZEAL_swat_MP5.weapon = {
-		america = "mp5",
-		russia = "asval_smg",
-		murkywater = "ump",
-		federales = "ump",
-	}
-	self.unit_categories.ZEAL_heavy_M4 = deep_clone(self.unit_categories.CITY_heavy_M4)
-	self.unit_categories.ZEAL_heavy_M4.weapon = self.unit_categories.ZEAL_swat_M4.weapon
-	self.unit_categories.ZEAL_heavy_R870 = deep_clone(self.unit_categories.CITY_heavy_R870)
-	self.unit_categories.ZEAL_heavy_R870.weapon = {
-		america = { "r870", "mossberg", },
-	}
+	unit_type_stuff(self.unit_categories.ZEAL_swat, {
+		russia = {
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_swat_dw_ak47_ass/ene_akan_fbi_swat_dw_ak47_ass"),
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_swat_dw_ak47_ass/ene_akan_fbi_swat_dw_ak47_ass"),
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_swat_dw_r870/ene_akan_fbi_swat_dw_r870"),
+		},
+		murkywater = {
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_light_city/ene_murkywater_light_city"),
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_light_city/ene_murkywater_light_city"),
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_light_city_r870/ene_murkywater_light_city_r870"),
+		},
+		federales = {
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_policia_federale_city/ene_swat_policia_federale_city"),
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_policia_federale_city/ene_swat_policia_federale_city"),
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_policia_federale_city_r870/ene_swat_policia_federale_city_r870"),
+		},
+	})
 	if ds then
-		unit_type_stuff(self.unit_categories.ZEAL_swat_M4, {
-			america = { Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"), },
-			zombie = { Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"), },
-		})
-		unit_type_stuff(self.unit_categories.ZEAL_swat_R870, {
-			america = { Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"), },
-			zombie = { Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"), },
-		})
-		unit_type_stuff(self.unit_categories.ZEAL_swat_MP5, {
-			america = { Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"), },
-			zombie = { Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"), },
-		})
-		unit_type_stuff(self.unit_categories.ZEAL_heavy_M4, {
-			america = { Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat_heavy/ene_zeal_swat_heavy"), },
-			zombie = { Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat_heavy/ene_zeal_swat_heavy"), },
-		})
-		unit_type_stuff(self.unit_categories.ZEAL_heavy_R870, {
+		unit_type_stuff(self.unit_categories.ZEAL_swat, {
 			america = {
+				Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"),
+				Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"),
+				Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"),
+			},
+			zombie = {
+				Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"),
+				Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"),
+				Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat/ene_zeal_swat"),
+			},
+		})
+	else
+		unit_type_stuff(self.unit_categories.ZEAL_swat, {
+			america = {
+				Idstring("units/payday2/characters/ene_city_swat_1/ene_city_swat_1"),
+				Idstring("units/payday2/characters/ene_city_swat_3/ene_city_swat_3"),
+				Idstring("units/payday2/characters/ene_city_swat_2/ene_city_swat_2"),
+			},
+			zombie = {
+				Idstring("units/payday2/characters/ene_city_swat_1/ene_city_swat_1"),
+				Idstring("units/payday2/characters/ene_city_swat_3/ene_city_swat_3"),
+				Idstring("units/payday2/characters/ene_city_swat_2/ene_city_swat_2"),
+			},
+		})
+	end
+
+	self.unit_categories.ZEAL_heavy = deep_clone(self.unit_categories.CITY_heavy)
+	self.unit_categories.ZEAL_heavy.weapon = {
+		america = { "m4", "m4", "r870", "mossberg", },
+		russia = { "ak47_ass", "ak47_ass", "r870", "mossberg", },
+	}
+	unit_type_stuff(self.unit_categories.ZEAL_heavy, {
+		russia = {
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_heavy_g36/ene_akan_fbi_heavy_g36"),
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_heavy_g36/ene_akan_fbi_heavy_g36"),
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_heavy_r870/ene_akan_fbi_heavy_r870"),
+			Idstring("units/pd2_dlc_mad/characters/ene_akan_fbi_heavy_r870/ene_akan_fbi_heavy_r870"),
+		},
+		murkywater = {
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_heavy_g36/ene_murkywater_heavy_g36"),
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_heavy_g36/ene_murkywater_heavy_g36"),
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_heavy_shotgun/ene_murkywater_heavy_shotgun"),
+			Idstring("units/pd2_dlc_bph/characters/ene_murkywater_heavy_shotgun/ene_murkywater_heavy_shotgun"),
+		},
+		federales = {
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_heavy_policia_federale_fbi/ene_swat_heavy_policia_federale_fbi"),
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_heavy_policia_federale_fbi/ene_swat_heavy_policia_federale_fbi"),
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_heavy_policia_federale_fbi_r870/ene_swat_heavy_policia_federale_fbi_r870"),
+			Idstring("units/pd2_dlc_bex/characters/ene_swat_heavy_policia_federale_fbi_r870/ene_swat_heavy_policia_federale_fbi_r870"),
+		},
+	})
+	if ds then
+		unit_type_stuff(self.unit_categories.ZEAL_heavy, {
+			america = {
+				Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat_heavy/ene_zeal_swat_heavy"),
+				Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat_heavy/ene_zeal_swat_heavy"),
 				Idstring("units/pd2_dlc_drm/characters/ene_zeal_swat_heavy_sniper/ene_zeal_swat_heavy_sniper"),
 				Idstring("units/pd2_dlc_drm/characters/ene_zeal_swat_heavy_sniper/ene_zeal_swat_heavy_sniper"),
 			},
 			zombie = {
+				Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat_heavy/ene_zeal_swat_heavy"),
+				Idstring("units/pd2_dlc_gitgud/characters/ene_zeal_swat_heavy/ene_zeal_swat_heavy"),
 				Idstring("units/pd2_dlc_drm/characters/ene_zeal_swat_heavy_sniper/ene_zeal_swat_heavy_sniper"),
 				Idstring("units/pd2_dlc_drm/characters/ene_zeal_swat_heavy_sniper/ene_zeal_swat_heavy_sniper"),
+			},
+		})
+	else
+		unit_type_stuff(self.unit_categories.ZEAL_heavy, {
+			america = {
+				Idstring("units/payday2/characters/ene_city_heavy_g36/ene_city_heavy_g36"),
+				Idstring("units/payday2/characters/ene_city_heavy_g36/ene_city_heavy_g36"),
+				Idstring("units/payday2/characters/ene_city_heavy_r870/ene_city_heavy_r870"),
+				Idstring("units/payday2/characters/ene_city_heavy_r870/ene_city_heavy_r870"),
+			},
+			zombie = {
+				Idstring("units/payday2/characters/ene_city_heavy_g36/ene_city_heavy_g36"),
+				Idstring("units/payday2/characters/ene_city_heavy_g36/ene_city_heavy_g36"),
+				Idstring("units/payday2/characters/ene_city_heavy_r870/ene_city_heavy_r870"),
+				Idstring("units/payday2/characters/ene_city_heavy_r870/ene_city_heavy_r870"),
 			},
 		})
 	end
@@ -484,22 +547,11 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 	local dozers = table.set("tac_bull_rush")
 	local cloakers = table.set("FBI_spoocs", "single_spooc")
 
-	local function spawn_point_check_has_shield(group)
-		for _, enemy in pairs(group.spawn) do
-			if enemy.unit:match("shield") then
-				return clone(shields)
-			end
-		end
-
-		return clone(swats)
-	end
-
-
 	groups.swat_light = {
 		spawn_point_chk_ref = swats,
 		amount = { 4, 4, },
 		spawn = {
-			{ rank = 2, unit = "CS_heavy_M4", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.heavy_smg, },
+			{ rank = 1, unit = "CS_heavy_M4", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.heavy_smg, },
 			{ rank = 1, unit = "FBI_suit_C45_M4", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.light_rifle, },
 		},
 	}
@@ -507,8 +559,7 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = swats,
 		amount = { 4, 4, },
 		spawn = {
-			{ rank = 2, unit = "CITY_heavy_R870", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_shotgun, },
-			{ rank = 2, unit = "CITY_heavy_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_smg, },
+			{ rank = 1, unit = "CITY_heavy", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_shotgun, },
 			{ rank = 1, unit = "FBI_swat_M4", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.light_rifle, },
 		},
 	}
@@ -516,17 +567,17 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = swats,
 		amount = { 4, 4, },
 		spawn = {
-			{ rank = 1, unit = "ZEAL_heavy_M4", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.heavy_rifle, },
-			{ rank = 1, unit = "ZEAL_heavy_R870", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.heavy_shotgun, },
+			{ rank = 1, unit = "ZEAL_heavy", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.heavy_rifle, },
+			{ rank = 1, unit = "ZEAL_swat", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.heavy_shotgun, },
 		},
 	}
 	groups.shield_light = {
 		spawn_point_chk_ref = shields,
 		amount = { 4, 4, },
 		spawn = {
-			{ rank = 4, unit = "CS_shield", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.shield_ranged, },
-			{ rank = 3, unit = "CITY_swat_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.light_rifle, },
-			{ rank = 2, unit = "FBI_swat_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.light_rifle, },
+			{ rank = 1, unit = "CS_shield", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.shield_ranged, },
+			{ rank = 1, unit = "CITY_swat", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.light_rifle, },
+			{ rank = 1, unit = "FBI_swat_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.light_rifle, },
 			{ rank = 1, unit = "medic_M4_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.medic, },
 		},
 	}
@@ -534,10 +585,10 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = shields,
 		amount = { 5, 5, },
 		spawn = {
-			{ rank = 5, unit = "CITY_shield", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.shield_charge, },
-			{ rank = 4, unit = "FBI_shield", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.shield_charge, },
-			{ rank = 3, unit = "CITY_swat_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.light_rifle, },
-			{ rank = 2, unit = "FBI_heavy_G36", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_shotgun, },
+			{ rank = 1, unit = "CITY_shield", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.shield_charge, },
+			{ rank = 1, unit = "FBI_shield", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.shield_charge, },
+			{ rank = 1, unit = "CITY_swat", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.light_rifle, },
+			{ rank = 1, unit = "FBI_heavy_G36", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_shotgun, },
 			{ rank = 1, unit = "medic_M4_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.medic, },
 		},
 	}
@@ -545,9 +596,9 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = shields,
 		amount = { 5, 5, },
 		spawn = {
-			{ rank = 3, unit = "ZEAL_shield", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.shield_charge, },
-			{ rank = 2, unit = "ZEAL_heavy_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_rifle, },
-			{ rank = 2, unit = "ZEAL_heavy_R870", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_shotgun, },
+			{ rank = 1, unit = "ZEAL_shield", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.shield_charge, },
+			{ rank = 1, unit = "ZEAL_heavy", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_rifle, },
+			{ rank = 1, unit = "ZEAL_swat", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_shotgun, },
 			{ rank = 1, unit = "medic_M4_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.medic, },
 		},
 	}
@@ -555,7 +606,7 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = tasers,
 		amount = { 3, 3, },
 		spawn = {
-			{ rank = 2, unit = "ZEAL_tazer", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.taser, },
+			{ rank = 1, unit = "ZEAL_tazer", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.taser, },
 			{ rank = 1, unit = "FBI_suit_stealth_MP5", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.heavy_rifle, },
 		},
 	}
@@ -563,8 +614,8 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = tasers,
 		amount = { 4, 4, },
 		spawn = {
-			{ rank = 3, unit = "ZEAL_tazer", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.taser, },
-			{ rank = 2, unit = "FBI_suit_stealth_MP5", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_rifle, },
+			{ rank = 1, unit = "ZEAL_tazer", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.taser, },
+			{ rank = 1, unit = "FBI_suit_stealth_MP5", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_rifle, },
 			{ rank = 1, unit = "medic_M4_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.medic, },
 		},
 	}
@@ -572,9 +623,8 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = tasers,
 		amount = { 5, 5, },
 		spawn = {
-			{ rank = 3, unit = "ZEAL_tazer", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.taser, },
-			{ rank = 2, unit = "FBI_suit_C45_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_rifle, },
-			{ rank = 2, unit = "FBI_suit_stealth_MP5", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_shotgun, },
+			{ rank = 1, unit = "ZEAL_tazer", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.taser, },
+			{ rank = 1, unit = "FBI_suit_C45_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.heavy_rifle, },
 			{ rank = 1, unit = "ZEAL_spooc_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.spooc_charge, },
 			{ rank = 1, unit = "medic_M4_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.medic, },
 		},
@@ -583,7 +633,7 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = dozers,
 		amount = { 3, 3, },
 		spawn = {
-			{ rank = 2, unit = "FBI_tank", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.tank, },
+			{ rank = 1, unit = "FBI_tank", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.tank, },
 			{ rank = 1, unit = "medic_M4_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.medic, },
 		},
 	}
@@ -591,7 +641,7 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = dozers,
 		amount = { 4, 4, },
 		spawn = {
-			{ rank = 2, unit = "FBI_tank", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.tank, },
+			{ rank = 1, unit = "FBI_tank", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.tank, },
 			{ rank = 1, unit = "medic_M4_unlimited", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.medic, },
 		},
 	}
@@ -599,8 +649,8 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = dozers,
 		amount = { 6, 6, },
 		spawn = {
-			{ rank = 3, unit = "FBI_tank", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.tank, },
-			{ rank = 2, unit = "ZEAL_shield_unlimited", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.shield_charge, },
+			{ rank = 1, unit = "FBI_tank", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.tank, },
+			{ rank = 1, unit = "ZEAL_shield_unlimited", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.shield_charge, },
 			{ rank = 1, unit = "medic_M4_unlimited", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.medic, },
 		},
 	}
@@ -632,7 +682,7 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = shields,
 		amount = { 4, 4, },
 		spawn = {
-			{ rank = 2, unit = "CS_heavy_M4", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.empty, },
+			{ rank = 1, unit = "CS_heavy_M4", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.empty, },
 			{ rank = 1, unit = "CS_swat_MP5", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.empty, },
 		},
 	}
@@ -640,8 +690,8 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = shields,
 		amount = { 4, 4, },
 		spawn = {
-			{ rank = 3, unit = "FBI_shield_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
-			{ rank = 2, unit = "FBI_heavy_G36", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "FBI_shield_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "FBI_heavy_G36", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
 			{ rank = 1, unit = "FBI_swat_M4", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.empty, },
 		},
 	}
@@ -649,9 +699,8 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = shields,
 		amount = { 4, 4, },
 		spawn = {
-			{ rank = 3, unit = "CITY_shield_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
-			{ rank = 2, unit = "CITY_heavy_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
-			{ rank = 2, unit = "CITY_heavy_R870", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "CITY_shield_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "CITY_heavy", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.empty, },
 			{ rank = 1, unit = "spooc_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
 		},
 	}
@@ -659,7 +708,7 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = shields,
 		amount = { 3, 3, },
 		spawn = {
-			{ rank = 2, unit = "FBI_shield_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "FBI_shield_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
 			{ rank = 1, unit = "FBI_suit_C45_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
 			{ rank = 1, unit = "FBI_suit_stealth_MP5", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
 		},
@@ -668,9 +717,9 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = shields,
 		amount = { 4, 4, },
 		spawn = {
-			{ rank = 3, unit = "FBI_shield_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
-			{ rank = 2, unit = "FBI_suit_C45_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
-			{ rank = 2, unit = "FBI_suit_stealth_MP5", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "FBI_shield_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "FBI_suit_C45_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "FBI_suit_stealth_MP5", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
 			{ rank = 1, unit = "medic_M4_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
 		},
 	}
@@ -678,10 +727,8 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = shields,
 		amount = { 5, 5, },
 		spawn = {
-			{ rank = 3, unit = "FBI_shield_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
-			{ rank = 2, unit = "CITY_swat_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
-			{ rank = 2, unit = "CITY_swat_R870", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
-			{ rank = 2, unit = "CITY_swat_MP5", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "FBI_shield_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "CITY_swat", freq = 1, amount_min = 3, amount_max = 3, tactics = tactics.empty, },
 			{ rank = 1, unit = "medic_M4_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
 		},
 	}
@@ -689,8 +736,8 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = shields,
 		amount = { 5, 5, },
 		spawn = {
-			{ rank = 3, unit = "CS_tazer_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
-			{ rank = 2, unit = "FBI_heavy_G36", freq = 1, amount_min = 3, amount_max = 3, tactics = tactics.empty, },
+			{ rank = 1, unit = "CS_tazer_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "FBI_heavy_G36", freq = 1, amount_min = 3, amount_max = 3, tactics = tactics.empty, },
 			{ rank = 1, unit = "medic_M4_unlimited", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
 		},
 	}
@@ -705,7 +752,7 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = swats,
 		amount = { 3, 3, },
 		spawn = {
-			{ rank = 2, unit = "FBI_suit_stealth_MP5", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "FBI_suit_stealth_MP5", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
 			{ rank = 1, unit = "FBI_suit_C45_M4", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.empty, },
 		},
 	}
@@ -713,7 +760,7 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		spawn_point_chk_ref = swats,
 		amount = { 3, 3, },
 		spawn = {
-			{ rank = 2, unit = "CS_heavy_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
+			{ rank = 1, unit = "CS_heavy_M4", freq = 1, amount_min = 1, amount_max = 1, tactics = tactics.empty, },
 			{ rank = 1, unit = "FBI_heavy_G36", freq = 1, amount_min = 2, amount_max = 2, tactics = tactics.empty, },
 		},
 	}
@@ -727,8 +774,7 @@ Hooks:PostHook( GroupAITweakData, "init", "lsd_init", function(self, tweak_data)
 		groups.marshal_squad.initial_spawn_delay = nil
 	end
 
-
-	self.difficulty_curve_points[1] = math.lerp(0.5, 0.35, math.clamp(difficulty_index - 2, 0, 6) / 6)
+	self.difficulty_curve_points[1] = 0.35
 
 	self.smoke_grenade_lifetime = 12
 	self.smoke_and_flash_grenade_timeout = { 7, 10, }

@@ -86,7 +86,7 @@ if Global.game_settings and Global.game_settings.single_player then
 	return
 end
 
-Hooks:PostHook( CopBase, "change_char_tweak", "lsd_change_char_tweak", function(self, new_tweak_name)
+Hooks:PreHook( CopBase, "change_char_tweak", "lsd_change_char_tweak", function(self, new_tweak_name)
 	if new_tweak_name ~= self._tweak_table and tweak_data.character[new_tweak_name] then
 		managers.network:session():send_to_peers_synched("sync_change_char_tweak", self._unit, new_tweak_name)
 	end

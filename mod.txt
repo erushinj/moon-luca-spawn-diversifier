@@ -6,7 +6,6 @@
 	"contact" : "https://modworkshop.net/user/55749",
 	"version" : "1",
 	"color" : "218 0 78",
-	"priority" : -11,
 	"hooks" : [
 		{ "hook_id" : "lib/tweak_data/charactertweakdata", "script_path" : "mod.lua" },
 		{ "hook_id" : "lib/tweak_data/groupaitweakdata", "script_path" : "mod.lua" },

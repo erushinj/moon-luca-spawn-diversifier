@@ -1,13 +1,3 @@
-Hooks:PostHook( CharacterTweakData, "_create_table_structure", "lsd__create_table_structure", function(self)
-	self.weap_map = {}
-
-	if self.weap_ids and self.weap_unit_names then
-		for i = 1, #self.weap_ids do
-			self.weap_map[self.weap_ids[i]] = self.weap_unit_names[i]
-		end
-	end
-end )
-
 Hooks:PostHook( CharacterTweakData, "init", "lsd_init", function(self)
 	self.marshal_marksman.misses_first_player_shot = false
 
@@ -40,6 +30,4 @@ Hooks:PostHook( CharacterTweakData, "_presets", "lsd__presets", function(self)
 			occasion.variations.side_step.chance = 1
 		end
 	end
-
-	return presets
 end )
