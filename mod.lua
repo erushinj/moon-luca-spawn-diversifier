@@ -15,6 +15,5 @@ end
 
 if RequiredScript and not LSD.required[RequiredScript] then
 	LSD.required[RequiredScript] = true
-	log(RequiredScript)
 	LSD:require((RequiredScript:gsub(".+/(.+)", "%1")))
 end
